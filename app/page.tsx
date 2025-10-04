@@ -16,6 +16,8 @@ import {
   Target,
   Flame,
 } from "lucide-react"
+import SelfieModal from "../components/SelfieModal"
+import Link from "next/link"
 
 // Mock data
 const mockUser = {
@@ -40,22 +42,23 @@ const mockLeaderboard = [
 ]
 
 const mockReels = [
-  { id: 1, title: "Alonso's Best Overtake", likes: 1200, thumbnail: "🏎️" },
+  { id: 1, title: "Alonso's Best Overtake", likes: 1200, thumbnail: "🏎" },
   { id: 2, title: "Silverstone Magic", likes: 890, thumbnail: "🏁" },
   { id: 3, title: "Monaco Masterclass", likes: 2100, thumbnail: "🏆" },
 ]
 
 const mockChatMessages = [
-  { id: 1, user: "F1Master", message: "What do you think about the new regulations?", timestamp: "10:30" },
-  {
-    id: 2,
-    user: "AI Alonso",
-    message: "The new regulations bring exciting opportunities for wheel-to-wheel racing!",
-    timestamp: "10:31",
-    isAlonso: true,
-  },
-  { id: 3, user: "SpeedKing", message: "Can't wait for the next race!", timestamp: "10:32" },
-]
+  { id: 1, user: "SpeedKing", message: "Who do you think will win the next race?", timestamp: "09:15" },
+  { id: 2, user: "TurboFan", message: "My bet is on Verstappen for pole position!", timestamp: "09:16" },
+  { id: 3, user: "F1 Fan", message: "I think Norris will surprise everyone!", timestamp: "09:17", isUser: true },
+  { id: 4, user: "RaceGuru", message: "Alonso for fastest lap, anyone?", timestamp: "09:18" },
+  { id: 5, user: "AI Alonso", message: "Consistency is key. I always aim for the podium!", timestamp: "09:19", isAlonso: true },
+  { id: 6, user: "F1 Fan", message: "Alonso, what’s your prediction for the winner?", timestamp: "09:20", isUser: true },
+  { id: 7, user: "AI Alonso", message: "Every race is a new challenge. Let’s see who adapts best!", timestamp: "09:21", isAlonso: true },
+  { id: 8, user: "SpeedKing", message: "Can Ferrari bounce back this weekend?", timestamp: "09:22" },
+  { id: 9, user: "TurboFan", message: "I hope for a wet race, always more drama!", timestamp: "09:23" },
+  { id: 10, user: "F1 Fan", message: "I’m excited for qualifying!", timestamp: "09:24", isUser: true },
+];
 
 // State reducer for complex state management
 const appReducer = (state, action) => {
@@ -98,7 +101,7 @@ const initialState = {
   chatInput: "",
   chatMessages: mockChatMessages,
   avatarState: "idle", // idle, listening, thinking, speaking
-  selectedEra: "2023-Present",
+  selectedEra: "2015-Present",
   predictions: {
     winner: "",
     fastestLap: "",
@@ -131,11 +134,11 @@ const AlonsoAvatar = ({ state, size = "large" }) => {
   }
 
   return (
-    <div className={`${sizeClasses[size]} relative flex items-center justify-center`}>
+    <div className={${sizeClasses[size]} relative flex items-center justify-center}>
       <div
-        className={`w-full h-full rounded-full bg-gradient-to-br from-[#005F41] to-[#37D980] flex items-center justify-center ${state === "thinking" ? "helmet-spin" : ""} ${state === "listening" ? "pulse-green" : ""}`}
+        className={w-full h-full rounded-full bg-gradient-to-br from-[#005F41] to-[#37D980] flex items-center justify-center ${state === "thinking" ? "helmet-spin" : ""} ${state === "listening" ? "pulse-green" : ""}}
       >
-        <div className={`text-4xl ${getStateColor()}`}>🏎️</div>
+        <div className={text-4xl ${getStateColor()}}>🏎</div>
       </div>
       {state !== "idle" && (
         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
@@ -150,34 +153,48 @@ const AlonsoAvatar = ({ state, size = "large" }) => {
 const Navigation = ({ currentView, onViewChange }) => {
   const navItems = [
     { id: "home", icon: Home, label: "Home" },
-    { id: "avatar", icon: MessageCircle, label: "Ask Alonso" },
+    { id: "avatar", icon: MessageCircle, label: "Ask Alonso", href: "/ask-alonso" },
     { id: "predictions", icon: Trophy, label: "Predictions" },
     { id: "reels", icon: Video, label: "Reels" },
-    { id: "social", icon: Users, label: "Social" },
-  ]
+    { id: "social", icon: Users, label: "Social", href: "/social" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-[#333333] z-50">
       <div className="flex justify-around items-center py-2">
-        {navItems.map(({ id, icon: Icon, label }) => (
-          <button
-            key={id}
-            onClick={() => onViewChange(id)}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              currentView === id ? "text-[#37D980] bg-[#005F41]/20" : "text-gray-400 hover:text-white"
-            }`}
-          >
-            <Icon size={20} />
-            <span className="text-xs mt-1">{label}</span>
-          </button>
+        {navItems.map(({ id, icon: Icon, label, href }) => (
+          href ? (
+            <Link
+              key={id}
+              href={href}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                currentView === id ? "text-[#37D980] bg-[#005F41]/20" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <Icon size={20} />
+              <span className="text-xs mt-1">{label}</span>
+            </Link>
+          ) : (
+            <button
+              key={id}
+              onClick={() => onViewChange(id)}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                currentView === id ? "text-[#37D980] bg-[#005F41]/20" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <Icon size={20} />
+              <span className="text-xs mt-1">{label}</span>
+            </button>
+          )
         ))}
       </div>
     </nav>
-  )
+  );
 }
 
 // Home View Component
 const HomeView = ({ user, onViewChange, dispatch }) => {
+  const [showSelfieModal, setShowSelfieModal] = useState(false)
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#005F41]/20 p-4 pb-20">
       {/* Header */}
@@ -199,7 +216,7 @@ const HomeView = ({ user, onViewChange, dispatch }) => {
             <h2 className="text-xl font-bold text-white mb-2">AI Alonso</h2>
             <p className="text-gray-300 text-sm mb-4">Your F1 companion is ready</p>
             <button
-              onClick={() => onViewChange("avatar")}
+              onClick={() => window.location.href = "/ask-alonso"}
               className="bg-[#37D980] text-black px-6 py-2 rounded-full font-semibold hover:bg-[#37D980]/90 transition-colors"
             >
               Ask Alonso
@@ -243,7 +260,7 @@ const HomeView = ({ user, onViewChange, dispatch }) => {
         </button>
 
         <button
-          onClick={() => onViewChange("social")}
+          onClick={() => window.location.href = "/social"}
           className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl p-4 text-left hover:border-[#37D980]/50 transition-colors"
         >
           <div className="flex items-center justify-between">
@@ -254,149 +271,23 @@ const HomeView = ({ user, onViewChange, dispatch }) => {
             <Users className="text-[#37D980]" size={20} />
           </div>
         </button>
-      </div>
-    </div>
-  )
-}
 
-// Avatar Chat View Component
-const AvatarView = ({ state, dispatch }) => {
-  const [streamingMessage, setStreamingMessage] = useState("")
-  const [isStreaming, setIsStreaming] = useState(false)
-
-  const eras = ["2003-2006 Renault", "2010-2014 Ferrari", "2023-Present Aston Martin"]
-
-  const handleSendMessage = async () => {
-    if (!state.chatInput.trim()) return
-
-    const userMessage = {
-      id: Date.now(),
-      user: "You",
-      message: state.chatInput,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isUser: true,
-    }
-
-    dispatch({ type: "ADD_CHAT_MESSAGE", payload: userMessage })
-    dispatch({ type: "SET_AVATAR_STATE", payload: "thinking" })
-
-    // Simulate AI response with streaming
-    setTimeout(() => {
-      dispatch({ type: "SET_AVATAR_STATE", payload: "speaking" })
-      setIsStreaming(true)
-
-      const responses = [
-        "That's a great question! From my experience in Formula 1...",
-        "You know, racing has taught me that every corner is an opportunity...",
-        "In my years with Ferrari, Renault, and now Aston Martin, I've learned...",
-        "The key to success in F1 is consistency and never giving up...",
-      ]
-
-      const response = responses[Math.floor(Math.random() * responses.length)]
-      let currentText = ""
-
-      const streamInterval = setInterval(() => {
-        if (currentText.length < response.length) {
-          currentText += response[currentText.length]
-          setStreamingMessage(currentText)
-        } else {
-          clearInterval(streamInterval)
-          setIsStreaming(false)
-
-          const alonsoMessage = {
-            id: Date.now() + 1,
-            user: "AI Alonso",
-            message: response,
-            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            isAlonso: true,
-          }
-
-          dispatch({ type: "ADD_CHAT_MESSAGE", payload: alonsoMessage })
-          dispatch({ type: "SET_AVATAR_STATE", payload: "idle" })
-          setStreamingMessage("")
-        }
-      }, 50)
-    }, 2000)
-  }
-
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col pb-20">
-      {/* Header */}
-      <div className="bg-[#1A1A1A] border-b border-[#333333] p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <AlonsoAvatar state={state.avatarState} size="small" />
-            <div className="ml-3">
-              <h2 className="text-white font-semibold">AI Alonso</h2>
-              <p className="text-gray-400 text-sm">{state.selectedEra}</p>
+        <button
+          onClick={() => setShowSelfieModal(true)}
+          className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl p-4 text-left hover:border-[#37D980]/50 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-white font-semibold">Selfie with Alonso</div>
+              <div className="text-gray-400 text-sm">Take a selfie with the Aston Martin F1 star!</div>
             </div>
+            <span className="text-2xl">🏎</span>
           </div>
-          <select
-            value={state.selectedEra}
-            onChange={(e) => dispatch({ type: "SET_TIME_ERA", payload: e.target.value })}
-            className="bg-[#2A2A2A] text-white border border-[#333333] rounded-lg px-3 py-1 text-sm"
-          >
-            {eras.map((era) => (
-              <option key={era} value={era}>
-                {era}
-              </option>
-            ))}
-          </select>
-        </div>
+        </button>
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {state.chatMessages.map((message) => (
-          <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[80%] rounded-2xl p-3 ${
-                message.isUser
-                  ? "bg-[#37D980] text-black"
-                  : message.isAlonso
-                    ? "bg-[#005F41] text-white border border-[#37D980]/30"
-                    : "bg-[#2A2A2A] text-white"
-              }`}
-            >
-              {!message.isUser && <div className="text-xs opacity-70 mb-1">{message.user}</div>}
-              <div>{message.message}</div>
-              <div className="text-xs opacity-70 mt-1">{message.timestamp}</div>
-            </div>
-          </div>
-        ))}
-
-        {isStreaming && (
-          <div className="flex justify-start">
-            <div className="max-w-[80%] bg-[#005F41] text-white border border-[#37D980]/30 rounded-2xl p-3">
-              <div className="text-xs opacity-70 mb-1">AI Alonso</div>
-              <div>
-                {streamingMessage}
-                <span className="animate-pulse">|</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Input */}
-      <div className="p-4 bg-[#1A1A1A] border-t border-[#333333]">
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={state.chatInput}
-            onChange={(e) => dispatch({ type: "SET_CHAT_INPUT", payload: e.target.value })}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            placeholder="Ask Alonso anything..."
-            className="flex-1 bg-[#2A2A2A] text-white border border-[#333333] rounded-full px-4 py-2 focus:outline-none focus:border-[#37D980]"
-          />
-          <button
-            onClick={handleSendMessage}
-            className="bg-[#37D980] text-black p-2 rounded-full hover:bg-[#37D980]/90 transition-colors"
-          >
-            <Send size={20} />
-          </button>
-        </div>
-      </div>
+      {/* Selfie Modal */}
+      {showSelfieModal && <SelfieModal onClose={() => setShowSelfieModal(false)} />}
     </div>
   )
 }
@@ -483,10 +374,10 @@ const PredictionsView = ({ state, dispatch }) => {
           {mockUser.badges.map((badge) => (
             <div
               key={badge.id}
-              className={`bg-[#1A1A1A] rounded-xl p-4 border ${badge.earned ? "border-[#37D980]" : "border-[#333333]"}`}
+              className={bg-[#1A1A1A] rounded-xl p-4 border ${badge.earned ? "border-[#37D980]" : "border-[#333333]"}}
             >
               <div className="text-2xl mb-2">{badge.icon}</div>
-              <div className={`font-semibold ${badge.earned ? "text-[#37D980]" : "text-gray-400"}`}>{badge.name}</div>
+              <div className={font-semibold ${badge.earned ? "text-[#37D980]" : "text-gray-400"}}>{badge.name}</div>
               <div className="text-xs text-gray-500 mt-1">{badge.earned ? "Earned" : "Not earned"}</div>
             </div>
           ))}
@@ -500,7 +391,7 @@ const PredictionsView = ({ state, dispatch }) => {
           {mockLeaderboard.map((user, index) => (
             <div
               key={user.id}
-              className={`flex items-center justify-between p-4 ${index < mockLeaderboard.length - 1 ? "border-b border-[#333333]" : ""}`}
+              className={flex items-center justify-between p-4 ${index < mockLeaderboard.length - 1 ? "border-b border-[#333333]" : ""}}
             >
               <div className="flex items-center">
                 <div
@@ -589,7 +480,7 @@ const ReelsView = ({ state, dispatch }) => {
           <div>
             <h3 className="text-[#37D980] font-semibold mb-2">Suggested Caption</h3>
             <p className="text-gray-300">
-              "Incredible wheel-to-wheel action! This is why we love F1 🏎️ #Formula1 #Racing"
+              "Incredible wheel-to-wheel action! This is why we love F1 🏎 #Formula1 #Racing"
             </p>
           </div>
 
@@ -637,7 +528,7 @@ const ReelsView = ({ state, dispatch }) => {
                   <div className="flex items-center space-x-4">
                     <button
                       onClick={() => toggleLike(reel.id)}
-                      className={`flex items-center space-x-1 ${reel.liked ? "text-red-500" : "text-gray-400"} hover:text-red-500 transition-colors`}
+                      className={flex items-center space-x-1 ${reel.liked ? "text-red-500" : "text-gray-400"} hover:text-red-500 transition-colors}
                     >
                       <Heart size={20} fill={reel.liked ? "currentColor" : "none"} />
                       <span>{reel.likes}</span>
@@ -657,93 +548,6 @@ const ReelsView = ({ state, dispatch }) => {
   )
 }
 
-// Social View Component
-const SocialView = ({ state, dispatch }) => {
-  const [newMessage, setNewMessage] = useState("")
-
-  const sendMessage = () => {
-    if (!newMessage.trim()) return
-
-    const message = {
-      id: Date.now(),
-      user: mockUser.name,
-      message: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isUser: true,
-    }
-
-    dispatch({ type: "ADD_CHAT_MESSAGE", payload: message })
-    setNewMessage("")
-  }
-
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col pb-20">
-      {/* Header */}
-      <div className="bg-[#1A1A1A] border-b border-[#333333] p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white">F1 Social Space</h1>
-            <p className="text-gray-400 text-sm">
-              Connected as: {mockUser.name} (ID: {mockUser.id})
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-[#37D980] rounded-full animate-pulse"></div>
-            <span className="text-[#37D980] text-sm">Live</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {state.chatMessages.map((message) => (
-          <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[80%] rounded-2xl p-3 ${
-                message.isUser
-                  ? "bg-[#37D980] text-black"
-                  : message.isAlonso
-                    ? "bg-gradient-to-r from-[#005F41] to-[#37D980]/20 text-white border border-[#37D980]/50"
-                    : "bg-[#2A2A2A] text-white"
-              }`}
-            >
-              <div className="flex items-center mb-1">
-                <span className="text-xs opacity-70">{message.user}</span>
-                {message.isAlonso && (
-                  <div className="ml-2 bg-[#37D980] text-black text-xs px-2 py-0.5 rounded-full">Premium AI</div>
-                )}
-              </div>
-              <div>{message.message}</div>
-              <div className="text-xs opacity-70 mt-1">{message.timestamp}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Input */}
-      <div className="p-4 bg-[#1A1A1A] border-t border-[#333333]">
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Chat with F1 fans..."
-            className="flex-1 bg-[#2A2A2A] text-white border border-[#333333] rounded-full px-4 py-2 focus:outline-none focus:border-[#37D980]"
-          />
-          <button
-            onClick={sendMessage}
-            className="bg-[#37D980] text-black p-2 rounded-full hover:bg-[#37D980]/90 transition-colors"
-          >
-            <Send size={20} />
-          </button>
-        </div>
-        <div className="text-xs text-gray-500 mt-2 text-center">🔴 WebSocket connected • Real-time chat active</div>
-      </div>
-    </div>
-  )
-}
-
 // Main App Component
 export default function AstonMartinF1App() {
   const [state, dispatch] = useReducer(appReducer, initialState)
@@ -756,14 +560,10 @@ export default function AstonMartinF1App() {
     switch (state.currentView) {
       case "home":
         return <HomeView user={mockUser} onViewChange={handleViewChange} dispatch={dispatch} />
-      case "avatar":
-        return <AvatarView state={state} dispatch={dispatch} />
       case "predictions":
         return <PredictionsView state={state} dispatch={dispatch} />
       case "reels":
         return <ReelsView state={state} dispatch={dispatch} />
-      case "social":
-        return <SocialView state={state} dispatch={dispatch} />
       default:
         return <HomeView user={mockUser} onViewChange={handleViewChange} dispatch={dispatch} />
     }
